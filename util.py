@@ -34,3 +34,18 @@ def extract_digits(data):
 def lines_from_file(filename):
     with open(filename, 'r') as fhan:
         return fhan.readlines()
+
+
+def issubset(small, large):
+    for item in small:
+        if item not in large:
+            return False
+        if large[item] < small[item]:
+            return False
+    return True
+
+
+def maxdict(small, target):
+    for item in small:
+        if item not in target or small[item] > target[item]:
+            target[item] = small[item]
