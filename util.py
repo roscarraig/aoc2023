@@ -1,6 +1,7 @@
+digits = [str(x) for x in range(10)]
+
 def read_digits(data):
     result = ''
-    digits = [str(x) for x in range(10)]
     digitw = {
         "one": "1",
         "two": "2",
@@ -25,7 +26,6 @@ def read_digits(data):
 
 def extract_digits(data):
     result = ''
-    digits = [str(x) for x in range(10)]
     for x in data:
         if x in digits:
             result += x
