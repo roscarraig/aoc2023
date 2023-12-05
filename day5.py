@@ -4,11 +4,38 @@ import sys
 import util
 
 
+def findmap2(items, map):
+    result = []
+    for i in range(0, len(items), 2):
+        a = items[i]
+        b = items[i + 1]
+        for entry in map:
+
 def findmap(item, map):
     for entry in map:
         if item in range(entry[1], entry[1] + entry[2]):
             return entry[0] + item - entry[1]
     return item
+
+
+def tracemaps(a, r, maps, level, seeds):
+    if level == -1:
+        return traceseed(a, r, seeds)
+
+    for map in maps[level]:
+        if a < map[0]:
+            if a + r < map[0]:
+                return tracemaps(a, r, maps, level - 1, seeds)
+            res = tracemaps(a, map[0] - a, maps, level - 1, seeds)
+            if res:
+                return res
+            if a + r > map[0] + map[2]:
+                res = tracemaps(map[1], map[2], maps, level - 1, seeds)
+                if res:
+                    return res
+
+            return tracemaps(map[0], r + map[0] - a, maps, level - 1, seeds)
+        if a < map
 
 
 def main():
@@ -31,6 +58,10 @@ def main():
 
     from1 = seeds
     from2 = seeds2
+
+    for item in sorted(maps[-1], key=lambda x:x[0]):
+        for i in range(len(maps) - 2, -1, -1):
+
 
     for i in range(len(mapi)):
         print(mapi[i])
