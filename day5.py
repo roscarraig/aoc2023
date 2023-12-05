@@ -4,13 +4,6 @@ import sys
 import util
 
 
-def findmap2(items, map):
-    result = []
-    for i in range(0, len(items), 2):
-        a = items[i]
-        b = items[i + 1]
-        for entry in map:
-
 def findmap(item, map):
     for entry in map:
         if item in range(entry[1], entry[1] + entry[2]):
@@ -18,64 +11,76 @@ def findmap(item, map):
     return item
 
 
+def traceseed(a, r, seeds):
+    seedlist = [[seeds[i], seeds[i + 1]] for i in range(0, len(seeds), 2)]
+    for seed in sorted(seedlist, key=lambda x:x[0]):
+        if a + r < seed[0]:
+            return
+        if a < seed[0]:
+            return seed[0]
+        if a < seed[0] + seed[1]:
+            return a
+
+
 def tracemaps(a, r, maps, level, seeds):
     if level == -1:
         return traceseed(a, r, seeds)
 
-    for map in maps[level]:
+    for map in sorted(maps[level], key=lambda x:x[0]):
         if a < map[0]:
             if a + r < map[0]:
                 return tracemaps(a, r, maps, level - 1, seeds)
             res = tracemaps(a, map[0] - a, maps, level - 1, seeds)
             if res:
                 return res
-            if a + r > map[0] + map[2]:
-                res = tracemaps(map[1], map[2], maps, level - 1, seeds)
-                if res:
-                    return res
+            r -= map[0] - a
+            a = map[0]
+        if a < map[0] + map[2]:
+            if a + r < map[0] + map[2]:
+                return tracemaps(map[1] + a - map[0], r, maps, level - 1, seeds)
+            res = tracemaps(map[1] + a - map[0], map[2] + map[0] - a, maps, level - 1, seeds)
+            if res:
+                return res
 
-            return tracemaps(map[0], r + map[0] - a, maps, level - 1, seeds)
-        if a < map
+            r -= map[0] + map[2] - a
+            a = map[0] + map[2]
+    return tracemaps(a, r, maps, level - 1, seeds)
 
 
 def main():
-    maps = {}
-    mapi = []
+    part2 = 0
+    maps = []
     data = util.lines_from_file(sys.argv[1])
     seeds = util.line_to_ints(data[0].strip().split(': ')[1])
-    seeds2 = []
-
-    for i in range(0, len(seeds), 2):
-        seeds2 += list(range(seeds[i], seeds[i] + seeds[i + 1]))
+    active = []
 
     for i in range(2, len(data)):
         if data[i].strip().endswith(" map:"):
-            active = data[i].split(' ')[0]
-            maps[active] = []
-            mapi.append(active)
+            if active:
+                maps.append(active)
+            active = []
         elif data[i].strip() != '':
-            maps[active].append(util.line_to_ints(data[i]))
+            active.append(util.line_to_ints(data[i]))
+
+    maps.append(active)
 
     from1 = seeds
-    from2 = seeds2
 
-    for item in sorted(maps[-1], key=lambda x:x[0]):
-        for i in range(len(maps) - 2, -1, -1):
+    end = maps[-1]
+    highstart = max([x[0] for x in end])
+    highrange = [x[2] for x in end if x[0] == highstart][0]
 
+    part2 = tracemaps(0, highstart + highrange, maps, len(maps) - 1, seeds)
 
-    for i in range(len(mapi)):
-        print(mapi[i])
+    for i in range(len(maps)):
         to1 = []
-        to2 = []
         for item in from1:
-            to1.append(findmap(item, maps[mapi[i]]))
-        for item in from2:
-            to2.append(findmap(item, maps[mapi[i]]))
+            to1.append(findmap(item, maps[i]))
         from1 = to1
-        from2 = to2
+        part2 = findmap(part2, maps[i])
 
     print(f"Part 1: {min(to1)}")
-    print(f"Part 2: {min(to2)}")
+    print(f"Part 2: {part2}")
 
 
 
