@@ -31,6 +31,7 @@ def extract_digits(data):
             result += x
     return result
 
+
 def lines_from_file(filename):
     with open(filename, 'r') as fhan:
         return fhan.readlines()
@@ -49,3 +50,7 @@ def maxdict(small, target):
     for item in small:
         if item not in target or small[item] > target[item]:
             target[item] = small[item]
+
+
+def line_to_ints(line, sep=' '):
+    return [int(x) for x in line.strip().split(sep)]
