@@ -104,8 +104,73 @@ def step2(shadow, x, y, w, h):
             step2(shadow, x, y + 1, w, h)
 
 
+def step3(shadow, w, h):
+    hit = True
+    while hit:
+        hit = False
+        for j in range(h):
+            for i in range(w):
+                if i < w - 1 and shadow[j][i] == ' ' and shadow[j][i + 1] == 'F' and shadow[j + 1][i + 1] == 'L':
+                    hit = True
+                    shadow[j][i + 1] = '.'
+                    shadow[j + 1][i + 1] = '.'
+                    if shadow[j][i + 2] == '7':
+                        shadow[j][i + 2] = ' '
+                        shadow[j + 1][i + 2] = ' '
+                        step2(shadow, i + 1, j, w, h)
+                        continue
+                    if shadow[j][i + 2] == '-':
+                        shadow[j][i + 2] = 'F'
+                    elif shadow[j][i + 2] == 'J':
+                        shadow[j][i + 2] = '|'
+                    if shadow[j + 1][i + 2] == '-':
+                        shadow[j + 1][i + 2] = 'L'
+                    elif shadow[j + 1][i + 2] == '7':
+                        shadow[j + 1][i + 2] = '|'
+                    step2(shadow, i + 1, j, w, h)
+                elif i < w - 2 and shadow[j][i] == ' ' and shadow[j][i + 1] == 'F' and shadow[j][i + 2] == '7':
+                    hit = True
+                    shadow[j][i + 1] = '.'
+                    shadow[j][i + 2] = '.'
+                    if shadow[j + 1][i + 1] == '|':
+                        shadow[j + 1][i + 1] = 'F'
+                    elif shadow[j + 1][i + 1] == 'J':
+                        shadow[j + 1][i + 1] = '-'
+                    if shadow[j + 1][i + 2] == '|':
+                        shadow[j + 1][i + 2] = '7'
+                    elif shadow[j + 1][i + 2] == 'L':
+                        shadow[j + 1][i + 2] = '-'
+                    step2(shadow, i + 1, j, w, h)
+                elif i < w - 2 and shadow[j][i] == ' ' and shadow[j][i + 1] == 'L' and shadow[j][i + 2] == 'J':
+                    hit = True
+                    shadow[j][i + 1] = '.'
+                    shadow[j][i + 2] = '.'
+                    if shadow[j - 1][i + 1] == '|':
+                        shadow[j - 1][i + 1] = 'L'
+                    elif shadow[j - 1][i + 1] == '7':
+                        shadow[j - 1][i + 1] = '-'
+                    if shadow[j - 1][i + 2] == '|':
+                        shadow[j - 1][i + 2] = 'J'
+                    elif shadow[j - 1][i + 2] == 'F':
+                        shadow[j - 1][i + 2] = '-'
+                    step2(shadow, i + 1, j, w, h)
+                elif i < w - 2 and shadow[j][i] == ' ' and shadow[j][i + 1] == 'L' and shadow[j - 1][i + 1] == 'F':
+                    hit = True
+                    shadow[j][i + 1] = '.'
+                    shadow[j - 1][i + 1] = '.'
+                    if shadow[j][i + 2] == '-':
+                        shadow[j][i + 2] = 'L'
+                    elif shadow[j][i + 2] == '7':
+                        shadow[j][i + 2] = '|'
+                    if shadow[j - 1][i + 2] == '-':
+                        shadow[j - 1][i + 2] = 'F'
+                    elif shadow[j - 1][i + 2] == 'J':
+                        shadow[j - 1][i + 2] = '|'
+                    step2(shadow, i + 1, j, w, h)
+
+
 def main():
-    sys.setrecursionlimit(1000000)
+    sys.setrecursionlimit(10000000)
     pmap = []
 
     for line in util.lines_from_file(sys.argv[1]):
@@ -131,13 +196,14 @@ def main():
 
     print(f"Part 1: {part1}")
     step2(pmap, 0, 0, w, h)
+    step3(pmap, w, h)
     show(pmap)
     for line in pmap:
         for point in line:
             if point == '.':
                 part2 += 1
     print(f"Part 2: {part2}")
-    # 547 high
+    # 535 high
 
 
 if __name__ == '__main__':
