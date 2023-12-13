@@ -54,3 +54,10 @@ def maxdict(small, target):
 
 def line_to_ints(line, sep=' '):
     return [int(x) for x in line.strip().split(sep)]
+
+
+def flip(matrix):
+    """ Flip a matrix between horizontal and vertical """
+    w = len(matrix[0])
+    h = len(matrix)
+    return [''.join([matrix[j][i] for j in range(h)]) for i in range(w)]
