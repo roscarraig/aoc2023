@@ -61,3 +61,7 @@ def flip(matrix):
     w = len(matrix[0])
     h = len(matrix)
     return [''.join([matrix[j][i] for j in range(h)]) for i in range(w)]
+
+
+def matrix_string(matrix):
+    return '\n'.join([''.join(line) for line in matrix])
