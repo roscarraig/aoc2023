@@ -13,15 +13,21 @@ def check(x, y, ldir, heat, steps, city, seen):
         return False
     if x < 0 or y < 0 or x >= len(city[0]) or y >= len(city):
         return False
-    if (w - 1, h - 1) in seen:
-        print(seen[(w - 1, h - 1)])
 
     heat += city[y][x]
 
     if (x, y) in seen:
         for item in seen[(x, y)]:
-            if item['dir'] == ldir and item['steps'] >= steps and item['heat'] < heat:
+            if item['heat'] < heat:
+                if item['dir'] == ldir and item['steps'] >= steps:
+                    return False
+            if item['heat']  == heat and item['dir'] == ldir and item['steps'] >= steps:
                 return False
+            if item['heat'] + 36 < heat:
+                return False
+        for i in range(len(seen[(x, y)]) - 1, -1, -1):
+            if seen[(x, y)][i]['dir'] == ldir and seen[(x, y)][i]['heat'] >= heat and seen[(x, y)][i]['steps'] <= steps:
+                seen[(x, y)].pop(i)
         seen[(x, y)].append({
             "steps": steps,
             "dir": ldir,
@@ -36,20 +42,21 @@ def check(x, y, ldir, heat, steps, city, seen):
     return True
 
 
-def trace2(city, seen):
+def trace(city, seen):
     wave = []
     wave.append([1, 0, 1, 2, 0])
     wave.append([0, 1, 2, 2, 0])
+    i = 0
 
     while wave:
+        i += 1
         nextwave = []
-        print(len(wave))
+        print(i, len(wave))
         for item in wave:
             x = item[0]
             y = item[1]
             ldir = item[2]
             steps = item[3]
-            # print(x, y, item, city[y][x])
             heat = item[4] + city[y][x]
             if ldir == 1:
                 if check(x + 1, y, 1, heat, steps - 1, city, seen):
@@ -79,43 +86,12 @@ def trace2(city, seen):
                     nextwave.append([x + 1, y, 1, 3, heat])
                 if check(x - 1, y, 3, heat, 3, city, seen):
                     nextwave.append([x - 1, y, 3, 3, heat])
+        for i in range(len(nextwave) - 1, -1, -1):
+            for j in range(i - 1, -1, -1):
+                if nextwave[i][0:2] == nextwave[j][0:2]:
+                    print("Hit", nextwave[i][0:2])
         wave = nextwave
-
-
-def trace(x, y, ldir, heat, steps, city, seen):
-    while steps > 0:
-        if x < 0 or y < 0 or x >= len(city[0]) or y >= len(city):
-            return
-        if (x, y, ldir, steps) in seen and seen[(x, y, ldir, steps)] < heat + city[y][x]:
-            return
-        if (x, y, ldir, steps + 1) in seen and seen[(x, y, ldir, steps + 1)] < heat + city[y][x]:
-            return
-        if (x, y, ldir, steps + 2) in seen and seen[(x, y, ldir, steps + 2)] < heat + city[y][x]:
-            return
-        if (x, y) in seen and seen[(x, y)] < heat + city[y][x]:
-            return
-
-        seen[(x, y, ldir, steps)] = heat + city[y][x]
-        seen[(x, y)] = heat + city[y][x]
-        heat += city[y][x]
-        steps -= 1
-
-        if ldir == 1:
-            trace(x, y + 1, 2, heat, 3, city, seen)
-            trace(x, y - 1, 2, heat, 3, city, seen)
-            x += 1
-        elif ldir == 2:
-            trace(x + 1, y, 1, heat, 3, city, seen)
-            trace(x - 1, y, 3, heat, 3, city, seen)
-            y += 1
-        elif ldir == 3:
-            trace(x, y + 1, 2, heat, 3, city, seen)
-            trace(x, y - 1, 4, heat, 3, city, seen)
-            x -= 1
-        elif ldir == 4:
-            trace(x + 1, y, 1, heat, 3, city, seen)
-            trace(x - 1, y, 3, heat, 3, city, seen)
-            y -= 1
+        print(wave)
 
 
 def main():
@@ -128,10 +104,7 @@ def main():
     seen = {}
     h = len(city)
     w = len(city[0])
-    # trace(1, 0, 1, 0, 2, city, seen)
-    # trace(0, 1, 2, 0, 2, city, seen)
-    trace2(city, seen)
-    # print(seen[(w - 1, h - 1)])
+    trace(city, seen)
     part1 = min([x["heat"] for x in seen[(w - 1, h - 1)]])
     print(f"Part 1: {part1}")
     # print(f"Part 2: {max(part2)}")
