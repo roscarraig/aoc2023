@@ -5,17 +5,6 @@ import resource
 import sys
 
 
-def add_to_wave(wave, params):
-    for i in range(len(wave) - 1, -1, -1):
-        if wave[i][0:3] == params[0:3]:
-            if wave[i][3] >= params[3]:
-                if wave[i][4] <= params[4]:
-                    return
-            if wave[i][3] < params[3] and wave[i][4] >= params[4]:
-                wave.pop(i)
-    wave.append(params)
-
-
 def check(x, y, ldir, heat, steps, city, seen):
 
     if steps < 1:
@@ -97,7 +86,71 @@ def trace(city, seen):
                 if check(x - 1, y, 3, heat, 3, city, seen):
                     nextwave.append([x - 1, y, 3, 3, heat])
         wave = nextwave
-        # print(wave)
+
+
+def trace2(city, seen):
+    wave = []
+    wave.append([4, 0, 1, 6, sum([city[0][1 + i] for i in range(3)])])
+    wave.append([0, 4, 2, 6, sum([city[i + 1][0] for i in range(3)])])
+    i = 0
+    ch = len(city)
+    cw = len(city[0])
+
+    while wave:
+        i += 1
+        nextwave = []
+        print(i, len(wave))
+        for item in wave:
+            x = item[0]
+            y = item[1]
+            ldir = item[2]
+            steps = item[3]
+            heat = item[4] + city[y][x]
+            if ldir == 1:
+                if check(x + 1, y, 1, heat, steps - 1, city, seen):
+                    nextwave.append([x + 1, y, 1, steps - 1, heat])
+                if y + 4 < ch:
+                    v = sum([city[y + 1 + j][x] for j in range(3)])
+                    if check(x, y + 1, 2, heat + v, 6, city, seen):
+                        nextwave.append([x, y + 4, 2, 6, heat + v])
+                if y > 3:
+                    v = sum([city[y - 1 - j][x] for j in range(3)])
+                    if check(x, y - 1, 4, heat + v, 6, city, seen):
+                        nextwave.append([x, y - 4, 4, 6, heat + v])
+            elif ldir == 3:
+                if check(x - 1, y, 3, heat, steps - 1, city, seen):
+                    nextwave.append([x - 1, y, 3, steps - 1, heat])
+                if y + 4 < ch:
+                    v = sum([city[y + 1 + j][x] for j in range(3)])
+                    if check(x, y + 4, 2, heat + v, 6, city, seen):
+                        nextwave.append([x, y + 4, 2, 6, heat + v])
+                if y > 3:
+                    v = sum([city[y - 1 - j][x] for j in range(3)])
+                    if check(x, y - 1, 4, heat + v, 6, city, seen):
+                        nextwave.append([x, y - 4, 4, 6, heat + v])
+            elif ldir == 2:
+                if check(x, y + 1, 2, heat, steps - 1, city, seen):
+                    nextwave.append([x, y + 1, 2, steps - 1, heat])
+                if x + 4 < cw:
+                    v = sum([city[y][x + 1 + j] for j in range(3)])
+                    if check(x + 4, y, 1, heat + v, 6, city, seen):
+                        nextwave.append([x + 4, y, 1, 6, heat + v])
+                if x > 3:
+                    v = sum([city[y][x - 1 - j] for j in range(3)])
+                    if check(x - 4, y, 3, heat + v, 6, city, seen):
+                        nextwave.append([x - 4, y, 3, 6, heat + v])
+            elif ldir == 4:
+                if check(x, y - 1, 4, heat, steps - 1, city, seen):
+                    nextwave.append([x, y - 1, 4, steps - 1, heat])
+                if x + 4 < cw:
+                    v = sum([city[y][x + 1 + j] for j in range(3)])
+                    if check(x + 4, y, 1, heat + v, 6, city, seen):
+                        nextwave.append([x + 4, y, 1, 6, heat + v])
+                if x > 3:
+                    v = sum([city[y][x - 1 - j] for j in range(3)])
+                    if check(x - 4, y, 3, heat + v, 6, city, seen):
+                        nextwave.append([x - 4, y, 3, 6, heat + v])
+        wave = nextwave
 
 
 def main(filename):
@@ -113,7 +166,11 @@ def main(filename):
     trace(city, seen)
     part1 = min([x["heat"] for x in seen[(w - 1, h - 1)]])
     print(f"Part 1: {part1}")
-    # print(f"Part 2: {max(part2)}")
+    seen = {}
+    trace2(city, seen)
+    part2 = min([x["heat"] for x in seen[(w - 1, h - 1)]])
+    print(f"Part 2: {part2}")
+    # 901 high
 
 
 if __name__ == '__main__':
