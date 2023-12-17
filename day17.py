@@ -5,12 +5,22 @@ import resource
 import sys
 
 
+def add_to_wave(wave, params):
+    for i in range(len(wave) - 1, -1, -1):
+        if wave[i][0:3] == params[0:3]:
+            if wave[i][3] >= params[3]:
+                if wave[i][4] <= params[4]:
+                    return
+            if wave[i][3] < params[3] and wave[i][4] >= params[4]:
+                wave.pop(i)
+    wave.append(params)
+
+
 def check(x, y, ldir, heat, steps, city, seen):
-    h = len(city)
-    w = len(city[0])
 
     if steps < 1:
         return False
+
     if x < 0 or y < 0 or x >= len(city[0]) or y >= len(city):
         return False
 
@@ -86,21 +96,17 @@ def trace(city, seen):
                     nextwave.append([x + 1, y, 1, 3, heat])
                 if check(x - 1, y, 3, heat, 3, city, seen):
                     nextwave.append([x - 1, y, 3, 3, heat])
-        for i in range(len(nextwave) - 1, -1, -1):
-            for j in range(i - 1, -1, -1):
-                if nextwave[i][0:2] == nextwave[j][0:2]:
-                    print("Hit", nextwave[i][0:2])
         wave = nextwave
-        print(wave)
+        # print(wave)
 
 
-def main():
+def main(filename):
     resource.setrlimit(resource.RLIMIT_STACK, (2**29,-1))
     sys.setrecursionlimit(10**6)
 
     part1 = 0
     part2 = []
-    city =  [[int(y) for y in x.strip()] for x in util.lines_from_file(sys.argv[1])]
+    city =  [[int(y) for y in x.strip()] for x in util.lines_from_file(filename)]
     seen = {}
     h = len(city)
     w = len(city[0])
@@ -111,4 +117,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1])
