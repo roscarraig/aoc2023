@@ -4,6 +4,8 @@ import util
 import resource
 import sys
 
+from operator import itemgetter
+
 
 def check(x, y, ldir, heat, steps, city, seen):
 
@@ -77,6 +79,37 @@ def check2(x, y, ldir, heat, steps, city, seen):
     return True
 
 
+def check2b(x, y, ldir, heat, city, seen, w, h):
+
+    if x < 0 or y < 0 or x >= w or y >= h:
+        return False
+
+    heat += city[y][x]
+
+    if (x, y, ldir) in seen:
+        if seen[(x, y, ldir)] <= heat:
+            return False
+    seen[(x, y, ldir)] = heat
+    return True
+
+
+def check2a(x, y, ldir, heat, steps, city, seen, w, h):
+
+    if steps < 1:
+        return False
+
+    if x < 0 or y < 0 or x >= w or y >= h:
+        return False
+
+    heat += city[y][x]
+
+    if (x, y, ldir, steps) in seen:
+        if seen[(x, y, ldir, steps)] <= heat:
+            return False
+    seen[(x, y, ldir, steps)] = heat
+    return True
+
+
 def trace(city, seen):
     wave = []
     wave.append([1, 0, 1, 2, 0])
@@ -121,7 +154,140 @@ def trace(city, seen):
                     nextwave.append([x + 1, y, 1, 3, heat])
                 if check(x - 1, y, 3, heat, 3, city, seen):
                     nextwave.append([x - 1, y, 3, 3, heat])
-        wave = nextwave
+        wave = sorted(nextwave, key=itemgetter(4))
+
+
+def trace2b(city, seen):
+    wave = []
+    v = sum([city[0][1 + i] for i in range(3)])
+    wave.append([4, 0, 1, v])
+    for i in range(6):
+        v += city[0][4 + i]
+        wave.append([5 + i, 0, 1, v])
+    v = sum([city[1 + i][0] for i in range(3)])
+    wave.append([0, 4, 0, v])
+    for i in range(6):
+        v += city[0][4 + i]
+        wave.append([0, 5 + i, 0, v])
+    i = 0
+    ch = len(city)
+    cw = len(city[0])
+
+    while wave:
+        i += 1
+        nextwave = []
+        print(i, len(wave))
+        for x, y, ldir, heat in wave:
+            heat += city[y][x]
+            if ldir:
+                if y + 4 < ch:
+                    v = sum([city[y + 1 + j][x] for j in range(3)])
+                    if check2b(x, y + 1, 0, heat + v, city, seen, cw, ch):
+                        nextwave.append([x, y + 4, 0, heat + v])
+                        for j in range(6):
+                            if y + 4 + j < ch:
+                                v += city[y + 4 + j][x]
+                                if check2b(x, y + 5 + j, 0, heat + v, city, seen, cw, ch):
+                                    nextwave.append([x, y + 5 + j, 0, heat + v])
+                if y > 3:
+                    v = sum([city[y - 1 - j][x] for j in range(3)])
+                    if check2b(x, y - 1, 0, heat + v, city, seen, cw, ch):
+                        nextwave.append([x, y - 4, 0, heat + v])
+                        for j in range(6):
+                            if y > 3 + j:
+                                v += city[y - 4 - j][x]
+                                if check2b(x, y - 5 - j, 0, heat + v, city, seen, cw, ch):
+                                    nextwave.append([x, y - 5, 0, heat + v])
+            else:
+                if x + 4 < cw:
+                    v = sum([city[y][x + 1 + j] for j in range(3)])
+                    if check2b(x, y + 1, 0, heat + v, city, seen, cw, ch):
+                        nextwave.append([x, y + 4, 0, heat + v])
+                        for j in range(6):
+                            if y + 4 + j < ch:
+                                v += city[y + 4 + j][x]
+                                if check2b(x, y + 5 + j, 0, heat + v, city, seen, cw, ch):
+                                    nextwave.append([x, y + 5 + j, 0, heat + v])
+                if y > 3:
+                    v = sum([city[y - 1 - j][x] for j in range(3)])
+                    if check2b(x, y - 1, 0, heat + v, city, seen, cw, ch):
+                        nextwave.append([x, y - 4, 0, heat + v])
+                        for j in range(6):
+                            if y > 3 + j:
+                                v += city[y - 4 - j][x]
+                                if check2b(x, y - 5 - j, 0, heat + v, city, seen, cw, ch):
+                                    nextwave.append([x, y - 5, 0, heat + v])
+            else:
+                if x + 4 < cw:
+                    v = sum([city[y][x + 1 + j] for j in range(3)])
+                    if check2a(x + 4, y, 1, heat + v, 6, city, seen, cw, ch):
+                        nextwave.append([x + 4, y, 1, 6, heat + v])
+                if x > 3:
+                    v = sum([city[y][x - 1 - j] for j in range(3)])
+                    if check2a(x - 4, y, 3, heat + v, 6, city, seen, cw, ch):
+                        nextwave.append([x - 4, y, 3, 6, heat + v])
+        wave = sorted(nextwave, key=itemgetter(4))
+
+
+def trace2a(city, seen):
+    wave = []
+    wave.append([4, 0, 1, 6, sum([city[0][1 + i] for i in range(3)])])
+    wave.append([0, 4, 2, 6, sum([city[i + 1][0] for i in range(3)])])
+    i = 0
+    ch = len(city)
+    cw = len(city[0])
+
+    while wave:
+        i += 1
+        nextwave = []
+        print(i, len(wave))
+        for x, y, ldir, steps, heat in wave:
+            heat += city[y][x]
+            if ldir == 1:
+                if check2a(x + 1, y, 1, heat, steps - 1, city, seen, cw, ch):
+                    nextwave.append([x + 1, y, 1, steps - 1, heat])
+                if y + 4 < ch:
+                    v = sum([city[y + 1 + j][x] for j in range(3)])
+                    if check2a(x, y + 1, 2, heat + v, 6, city, seen, cw, ch):
+                        nextwave.append([x, y + 4, 2, 6, heat + v])
+                if y > 3:
+                    v = sum([city[y - 1 - j][x] for j in range(3)])
+                    if check2a(x, y - 1, 4, heat + v, 6, city, seen, cw, ch):
+                        nextwave.append([x, y - 4, 4, 6, heat + v])
+            elif ldir == 3:
+                if check2a(x - 1, y, 3, heat, steps - 1, city, seen, cw, ch):
+                    nextwave.append([x - 1, y, 3, steps - 1, heat])
+                if y + 4 < ch:
+                    v = sum([city[y + 1 + j][x] for j in range(3)])
+                    if check2a(x, y + 4, 2, heat + v, 6, city, seen, cw, ch):
+                        nextwave.append([x, y + 4, 2, 6, heat + v])
+                if y > 3:
+                    v = sum([city[y - 1 - j][x] for j in range(3)])
+                    if check2a(x, y - 1, 4, heat + v, 6, city, seen, cw, ch):
+                        nextwave.append([x, y - 4, 4, 6, heat + v])
+            elif ldir == 2:
+                if check2a(x, y + 1, 2, heat, steps - 1, city, seen, cw, ch):
+                    nextwave.append([x, y + 1, 2, steps - 1, heat])
+                if x + 4 < cw:
+                    v = sum([city[y][x + 1 + j] for j in range(3)])
+                    if check2a(x + 4, y, 1, heat + v, 6, city, seen, cw, ch):
+                        nextwave.append([x + 4, y, 1, 6, heat + v])
+                if x > 3:
+                    v = sum([city[y][x - 1 - j] for j in range(3)])
+                    if check2a(x - 4, y, 3, heat + v, 6, city, seen, cw, ch):
+                        nextwave.append([x - 4, y, 3, 6, heat + v])
+            elif ldir == 4:
+                if check2a(x, y - 1, 4, heat, steps - 1, city, seen, cw, ch):
+                    nextwave.append([x, y - 1, 4, steps - 1, heat])
+                if x + 4 < cw:
+                    v = sum([city[y][x + 1 + j] for j in range(3)])
+                    if check2a(x + 4, y, 1, heat + v, 6, city, seen, cw, ch):
+                        nextwave.append([x + 4, y, 1, 6, heat + v])
+                if x > 3:
+                    v = sum([city[y][x - 1 - j] for j in range(3)])
+                    if check2a(x - 4, y, 3, heat + v, 6, city, seen, cw, ch):
+                        nextwave.append([x - 4, y, 3, 6, heat + v])
+        wave = sorted(nextwave, key=itemgetter(4))
 
 
 def trace2(city, seen):
@@ -199,12 +365,15 @@ def main(filename):
     seen = {}
     h = len(city)
     w = len(city[0])
-    trace(city, seen)
-    part1 = min([x["heat"] for x in seen[(w - 1, h - 1)]])
-    print(f"Part 1: {part1}")
+    # trace(city, seen)
+    # part1 = min([x["heat"] for x in seen[(w - 1, h - 1)]])
+    # print(f"Part 1: {part1}")
+    # seen = {}
+    # trace2(city, seen)
+    # part2 = min([x["heat"] for x in seen[(w - 1, h - 1)]])
     seen = {}
-    trace2(city, seen)
-    part2 = min([x["heat"] for x in seen[(w - 1, h - 1)]])
+    trace2a(city, seen)
+    part2 = min([seen[a] for a in seen if a[0] == w - 1 and a[1] == h - 1]) 
     print(f"Part 2: {part2}")
     # 901 high
     # 876 low

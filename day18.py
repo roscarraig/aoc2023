@@ -55,6 +55,8 @@ def main():
     yl = [0]
     xl2 = [0]
     yl2 = [0]
+    hlines = []
+    vlines = []
     
     for line in dig:
         parts = line.split(' ')
@@ -112,18 +114,22 @@ def main():
         p2dis = int(p2i[2:7], 16)
 
         if parts[0] == 'R':
+            hlines.append([x, y, x + dist])
             for i in range(dist):
                 x += 1
                 bmap1[y][x] = '#'
         elif parts[0] == 'L':
+            hlines.append([x - dist, y, x])
             for i in range(dist):
                 x -= 1
                 bmap1[y][x] = '#'
         elif parts[0] == 'D':
+            vlines.append([x, y, y + dist])
             for i in range(dist):
                 y += 1
                 bmap1[y][x] = '#'
         elif parts[0] == 'U':
+            vlines.append([x, y - dist, y])
             for i in range(dist):
                 y -= 1
                 bmap1[y][x] = '#'
