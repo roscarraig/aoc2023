@@ -79,20 +79,6 @@ def check2(x, y, ldir, heat, steps, city, seen):
     return True
 
 
-def check2b(x, y, ldir, heat, city, seen, w, h):
-
-    if x < 0 or y < 0 or x >= w or y >= h:
-        return False
-
-    heat += city[y][x]
-
-    if (x, y, ldir) in seen:
-        if seen[(x, y, ldir)] <= heat:
-            return False
-    seen[(x, y, ldir)] = heat
-    return True
-
-
 def check2a(x, y, ldir, heat, steps, city, seen, w, h):
 
     if steps < 1:
@@ -154,78 +140,6 @@ def trace(city, seen):
                     nextwave.append([x + 1, y, 1, 3, heat])
                 if check(x - 1, y, 3, heat, 3, city, seen):
                     nextwave.append([x - 1, y, 3, 3, heat])
-        wave = sorted(nextwave, key=itemgetter(4))
-
-
-def trace2b(city, seen):
-    wave = []
-    v = sum([city[0][1 + i] for i in range(3)])
-    wave.append([4, 0, 1, v])
-    for i in range(6):
-        v += city[0][4 + i]
-        wave.append([5 + i, 0, 1, v])
-    v = sum([city[1 + i][0] for i in range(3)])
-    wave.append([0, 4, 0, v])
-    for i in range(6):
-        v += city[0][4 + i]
-        wave.append([0, 5 + i, 0, v])
-    i = 0
-    ch = len(city)
-    cw = len(city[0])
-
-    while wave:
-        i += 1
-        nextwave = []
-        print(i, len(wave))
-        for x, y, ldir, heat in wave:
-            heat += city[y][x]
-            if ldir:
-                if y + 4 < ch:
-                    v = sum([city[y + 1 + j][x] for j in range(3)])
-                    if check2b(x, y + 1, 0, heat + v, city, seen, cw, ch):
-                        nextwave.append([x, y + 4, 0, heat + v])
-                        for j in range(6):
-                            if y + 4 + j < ch:
-                                v += city[y + 4 + j][x]
-                                if check2b(x, y + 5 + j, 0, heat + v, city, seen, cw, ch):
-                                    nextwave.append([x, y + 5 + j, 0, heat + v])
-                if y > 3:
-                    v = sum([city[y - 1 - j][x] for j in range(3)])
-                    if check2b(x, y - 1, 0, heat + v, city, seen, cw, ch):
-                        nextwave.append([x, y - 4, 0, heat + v])
-                        for j in range(6):
-                            if y > 3 + j:
-                                v += city[y - 4 - j][x]
-                                if check2b(x, y - 5 - j, 0, heat + v, city, seen, cw, ch):
-                                    nextwave.append([x, y - 5, 0, heat + v])
-            else:
-                if x + 4 < cw:
-                    v = sum([city[y][x + 1 + j] for j in range(3)])
-                    if check2b(x, y + 1, 0, heat + v, city, seen, cw, ch):
-                        nextwave.append([x, y + 4, 0, heat + v])
-                        for j in range(6):
-                            if y + 4 + j < ch:
-                                v += city[y + 4 + j][x]
-                                if check2b(x, y + 5 + j, 0, heat + v, city, seen, cw, ch):
-                                    nextwave.append([x, y + 5 + j, 0, heat + v])
-                if y > 3:
-                    v = sum([city[y - 1 - j][x] for j in range(3)])
-                    if check2b(x, y - 1, 0, heat + v, city, seen, cw, ch):
-                        nextwave.append([x, y - 4, 0, heat + v])
-                        for j in range(6):
-                            if y > 3 + j:
-                                v += city[y - 4 - j][x]
-                                if check2b(x, y - 5 - j, 0, heat + v, city, seen, cw, ch):
-                                    nextwave.append([x, y - 5, 0, heat + v])
-            else:
-                if x + 4 < cw:
-                    v = sum([city[y][x + 1 + j] for j in range(3)])
-                    if check2a(x + 4, y, 1, heat + v, 6, city, seen, cw, ch):
-                        nextwave.append([x + 4, y, 1, 6, heat + v])
-                if x > 3:
-                    v = sum([city[y][x - 1 - j] for j in range(3)])
-                    if check2a(x - 4, y, 3, heat + v, 6, city, seen, cw, ch):
-                        nextwave.append([x - 4, y, 3, 6, heat + v])
         wave = sorted(nextwave, key=itemgetter(4))
 
 
