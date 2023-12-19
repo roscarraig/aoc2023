@@ -65,3 +65,20 @@ def flip(matrix):
 
 def matrix_string(matrix):
     return '\n'.join([''.join(line) for line in matrix])
+
+
+def intersect(line, box):
+    if line[2] < box[0] or line[0] > box[2] or line[3] < box[1] or line[1] > box[3]:
+        return False
+    if line[0] > box[0] and line[0] < box[2]:
+        if line[1] > box[1] and line[1] < box[3]:
+            return True
+        if line[3] > box[3]:
+            return True
+    if line[2] > box[0] and line[2] < box[2]:
+        if line[3] > box[1] and line[3] < box[3]:
+            return True
+    if line[1] > box[1] and line[1] < box[3]:
+        if line[2] > box[2]:
+            return True
+    return False

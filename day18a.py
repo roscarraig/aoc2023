@@ -74,6 +74,11 @@ def trima(lines):
         cl = connected(lines, x)
         x0 = max([a[0] for a in cl])
         print(x0, x)
+        for a in lines:
+            if util.intersect(a, [x0, x[1], x[2], x[3]]):
+                print('I', a)
+
+
 
 
 def plot(lines):
