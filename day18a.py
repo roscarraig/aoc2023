@@ -40,20 +40,6 @@ def scope(head, items):
     return [-min(xl), -min(yl), max(xl) - min(xl), max(yl) - min(yl), turns]
 
 
-def maxi(lines, axis):
-    return max([x[axis] for x in lines])
-
-
-def mini(lines, axis):
-    return min([x[axis] for x in lines])
-
-
-def online(lines, axis, val):
-    if axis % 2:
-        return [x for x in lines if x[1] == val and x[3] == val]
-    return [x for x in lines if x[0] == val and x[2] == val]
-
-
 def connected(lines, line):
     result = []
 
@@ -65,20 +51,10 @@ def connected(lines, line):
     return result
 
 
-def trima(lines):
-    result = 0
-    maxx = maxi(lines, 2)
-    xlines = online(lines, 2, maxx)
+def measure(bmap):
+    vmarks = sorted(list(set([x[0] for x in bmap] + [x[2] for x in bmap])))
 
-    for x in xlines:
-        cl = connected(lines, x)
-        x0 = max([a[0] for a in cl])
-        print(x0, x)
-        for a in lines:
-            if util.intersect(a, [x0, x[1], x[2], x[3]]):
-                print('I', a)
-
-
+    print(vmarks)
 
 
 def plot(lines):
@@ -121,15 +97,10 @@ def main():
         lines[0].append([dir1, dist1])
         lines[1].append([dir2, dist2])
 
-    # print(scope(head[0], lines[0]))
-    # print(scope(head[1], lines[1]))
     maps.append(plot(lines[0]))
     maps.append(plot(lines[1]))
-    # maxx = maxi(maps[0], 2)
-    trima(maps[0])
-    # print(online(maps[0], 2, maxx))
-    # maxx = maxi(maps[1], 2)
-    # print(online(maps[1], 2, maxx))
+
+    measure(maps[0])
 
     print(f"Part 1: {part1}")
     print(f"Part 2: {part2}")

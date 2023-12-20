@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import math
 import util
 import sys
 
@@ -18,12 +19,12 @@ def main():
             code[left] = {"targets": targets, "type": "b"}
         else:
             code[left[1:]] = {"targets": targets, "type": left[0]}
-
     for item in code:
         if code[item]['type'] == '%':
             code[item]['state'] = 0
         elif code[item]['type'] == '&':
             code[item]['state'] = {x: 0 for x in code if item in code[x]["targets"]}
+            code[item]['loop'] = {}
 
     i = 0
     while not part2:
@@ -31,13 +32,10 @@ def main():
         queue = [("button", "broadcaster", 0)]
         if i % 1000000 == 0:
             print(i // 1000000)
-        print(i, [x for x in code if code[x]['type'] == '%' and code[x]['state']])
         while queue:
             # inpt, module, pulse = queue.pop()
-            press = queue.pop()
+            press = queue.pop(0)
             inpt, module, pulse = press
-            if inpt in ['zk', 'jf', 'qs', 'ks'] and pulse:
-                print('#', i, inpt)
             if i <= 1000:
                 hilow[pulse] += 1
             if module == "rx" and pulse == 0:
@@ -56,22 +54,21 @@ def main():
             elif code[module]["type"] == '&':
                 code[module]["state"][inpt] = pulse
                 if module == 'hj' and pulse:
-                    print(i, inpt)
+                    code[module]["loop"][inpt] = i
+                    if len(code[module]["loop"]) == len(code[module]["state"]):
+                        part2 = math.lcm(*[code[module]["loop"][x] for x in code[module]["loop"]])
+                        break
                 if min([code[module]["state"][x] for x in code[module]["state"]]) == 1:
                     for item in code[module]["targets"]:
                         queue.append((module, item, 0))
                 else:
                     for item in code[module]["targets"]:
                         queue.append((module, item, 1))
-            # if module in code and 'hj' in code[module]['targets'] and pulse:
-                # print(i, module)
         if i == 1000:
             part1 = hilow[0] * hilow[1]
             print(f"Part 1: {part1}")
 
     print(f"Part 2: {part2}")
-    # 237274251264000 low
-    # 240914003753369
 
 if __name__ == '__main__':
     main()
