@@ -10,7 +10,6 @@ def scope(head, items):
     xl = [0]
     yl = [0]
     turns = 0
-    print(head)
 
     for item in items:
         dir = item[0]
@@ -52,14 +51,25 @@ def connected(lines, line):
 
 
 def measure(bmap):
-    vmarks = sorted(list(set([x[0] for x in bmap] + [x[2] for x in bmap])))
+    vmarks = sorted(list(set([x[1] for x in bmap if x[1] == x[3]])))
+    result = sum([x[2] + x[3] - x[0] - x[1] for x in bmap])
+    v = 0
 
     print(vmarks)
 
+    for i in range(len(vmarks) - 1):
+        print('###', vmarks[i], vmarks[i + 1])
+        vlines = sorted([line[0] for line in bmap if line[0] == line[2] and vmarks[i] + 1 > line[1] and vmarks[i + 1] - 1 < line[3]])
+        for j in range(0, len(vlines), 2):
+            result += (vlines[1 + j] - vlines[j] - 1) * (vmarks[i + 1] - vmarks[i] - 1)
+        print(vlines)
+        for line in bmap:
+            if line[1] == line[3] and line[1] == vmarks[i + 1]:
+                print(line)
+    print(v)
+    return result
 
-def plot(lines):
-    x = 0
-    y = 0
+def plot(lines, x=0, y=0):
     result = []
 
     for pdir, dist in lines:
@@ -97,10 +107,14 @@ def main():
         lines[0].append([dir1, dist1])
         lines[1].append([dir2, dist2])
 
-    maps.append(plot(lines[0]))
-    maps.append(plot(lines[1]))
+    bounds = scope(lines[0][0][0], lines[0])
 
-    measure(maps[0])
+    maps.append(plot(lines[0], bounds[0], bounds[1]))
+    bounds = scope(lines[1][0][0], lines[0])
+    maps.append(plot(lines[1], bounds[0], bounds[1]))
+
+    part1 = measure(maps[0])
+    # print(measure(maps[1]))
 
     print(f"Part 1: {part1}")
     print(f"Part 2: {part2}")
